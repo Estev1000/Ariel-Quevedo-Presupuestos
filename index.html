@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PresupuestoPro - Carpintería San José</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-brand">
+            <div class="logo-circle"><img src="logo de carpinteria San Jose.png" alt="Carpintería San José" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;"></div>
+            <div class="brand-text">
+                <span class="brand-name">PresupuestoPro</span>
+                <span class="brand-sub">Carpintería San José</span>
+            </div>
+        </div>
+        <button id="menu-hamburguesa"><i class="fas fa-bars"></i></button>
+        <nav id="menu">
+            <a href="#clientes" class="active"><i class="fas fa-users"></i> Clientes</a>
+            <a href="#materiales"><i class="fas fa-layer-group"></i> Materiales</a>
+            <a href="#mano-obra"><i class="fas fa-hard-hat"></i> Mano de Obra</a>
+            <a href="#presupuestos"><i class="fas fa-file-invoice-dollar"></i> Presupuestos</a><a href="#" id="exportar-datos"><i class="fas fa-download"></i> Exportar</a><a href="#" id="importar-datos"><i class="fas fa-upload"></i> Importar</a>
+        </nav>
+    </header>
+    <main>
+        <!-- Sección de Clientes -->
+        <section id="clientes" class="seccion-app">
+            <h2><i class="fas fa-users"></i> Gestión de Clientes</h2>
+            <form id="form-cliente" class="form-app">
+                <div class="form-group">
+                    <input type="text" id="nombre-cliente" placeholder="Nombre completo" required>
+                    <input type="tel" id="telefono-cliente" placeholder="Teléfono" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email-cliente" placeholder="Correo electrónico">
+                    <input type="text" id="direccion-cliente" placeholder="Dirección de la obra" required>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-user-plus"></i> Agregar Cliente</button>
+            </form>
+            <div class="filtro-busqueda">
+                <input type="text" id="buscar-cliente" placeholder="Buscar cliente...">
+            </div>
+            <ul id="lista-clientes" class="lista-items"></ul>
+        </section>
+
+        <!-- Sección de Materiales -->
+        <section id="materiales" class="seccion-app" style="display: none;">
+            <h2><i class="fas fa-layer-group"></i> Materiales de Carpintería</h2>
+            <p class="seccion-desc">Madera, tableros, herrajes y más para Carpintería San José.</p>
+            <form id="form-material" class="form-app">
+                <div class="form-group">
+                    <input type="text" id="nombre-material" placeholder="Nombre del material (ej: Tablero de pino)"
+                        required>
+                    <select id="unidad-material" required>
+                        <option value="">Unidad de medida</option>
+                        <option value="unidad">Unidad</option>
+                        <option value="m2">Metro cuadrado (m²)</option>
+                        <option value="ml">Metro lineal (ml)</option>
+                        <option value="kg">Kilogramo (kg)</option>
+                        <option value="rollo">Rollo</option>
+                        <option value="bolsa">Bolsa</option>
+                        <option value="cajax500">Caja x 500</option>
+                        <option value="cajax1000">Caja x 1000</option>
+                        <option value="litro">Litro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="precio-material" placeholder="Precio unitario ($)" step="0.01" required>
+                    <input type="number" id="stock-material" placeholder="Cantidad en stock" min="0" step="0.01">
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-plus"></i> Agregar Material</button>
+            </form>
+            <div class="filtro-busqueda">
+                <input type="text" id="buscar-material" placeholder="Buscar material...">
+            </div>
+            <ul id="lista-materiales" class="lista-items"></ul>
+        </section>
+
+        <!-- Sección de Mano de Obra -->
+        <section id="mano-obra" class="seccion-app" style="display: none;">
+            <h2><i class="fas fa-hard-hat"></i> Mano de Obra de Carpintería</h2>
+            <p class="seccion-desc">Instalación, fabricación, barnizado y más para Carpintería San José.</p>
+            <form id="form-servicio" class="form-app">
+                <div class="form-group">
+                    <input type="text" id="nombre-servicio"
+                        placeholder="Descripción del servicio (ej: Instalación de puerta)" required>
+                    <select id="unidad-servicio" required>
+                        <option value="">Unidad de medida</option>
+                        <option value="m2">Metro cuadrado (m²)</option>
+                        <option value="ml">Metro lineal (ml)</option>
+                        <option value="hora">Hora</option>
+                        <option value="dia">Día</option>
+                        <option value="global">Precio global</option>
+                        <option value="unidad">Unidad</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="precio-servicio" placeholder="Precio unitario ($)" step="0.01" required>
+                    <input type="number" id="tiempo-servicio" placeholder="Tiempo estimado (horas)" min="0.5"
+                        step="0.5">
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-tools"></i> Agregar Servicio</button>
+            </form>
+            <div class="filtro-busqueda">
+                <input type="text" id="buscar-servicio" placeholder="Buscar servicio...">
+            </div>
+            <ul id="lista-servicios" class="lista-items"></ul>
+        </section>
+
+        <!-- Sección de Presupuestos -->
+        <section id="presupuestos" class="seccion-app" style="display: none;">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Generar Presupuesto</h2>
+            <div class="form-app">
+                <div class="form-group">
+                    <select id="cliente-presupuesto" required>
+                        <option value="">Seleccionar Cliente</option>
+                    </select>
+                    <input type="text" id="nombre-presupuesto"
+                        placeholder="Nombre del presupuesto (ej: Tabique planta baja)" required>
+                </div>
+                <div class="form-group">
+                    <input type="date" id="fecha-presupuesto" required>
+                    <input type="number" id="validez-presupuesto" placeholder="Validez (días)" min="1" value="30">
+                </div>
+
+                <div class="contenedor-items">
+                    <h3><i class="fas fa-layer-group"></i> Materiales de Carpintería</h3>
+                    <div class="form-group">
+                        <select id="material-presupuesto">
+                            <option value="">Seleccionar Material</option>
+                        </select>
+                        <input type="number" id="cantidad-material" placeholder="Cantidad" min="0.01" step="0.01">
+                        <button type="button" id="agregar-material" class="btn-secondary"><i class="fas fa-plus"></i>
+                            Agregar</button>
+                    </div>
+                    <ul id="lista-materiales-presupuesto" class="lista-items"></ul>
+
+                    <h3><i class="fas fa-hard-hat"></i> Mano de Obra de Carpintería</h3>
+                    <div class="form-group">
+                        <select id="servicio-presupuesto">
+                            <option value="">Seleccionar Servicio</option>
+                        </select>
+                        <input type="number" id="cantidad-servicio" placeholder="Cantidad" min="0.5" step="0.5">
+                        <button type="button" id="agregar-servicio" class="btn-secondary"><i class="fas fa-plus"></i>
+                            Agregar</button>
+                    </div>
+                    <ul id="lista-servicios-presupuesto" class="lista-items"></ul>
+                </div>
+
+                <div class="resumen-presupuesto">
+                    <h3>Resumen del Presupuesto</h3>
+                    <div class="resumen-detalle">
+                        <div class="resumen-fila">
+                            <span>Subtotal Materiales:</span>
+                            <span id="subtotal-materiales">$0.00</span>
+                        </div>
+                        <div class="resumen-fila">
+                            <span>Subtotal Mano de Obra:</span>
+                            <span id="subtotal-servicios">$0.00</span>
+                        </div>
+                        <div class="resumen-fila total">
+                            <strong>Total:</strong>
+                            <strong id="total-presupuesto">$0.00</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <textarea id="notas-presupuesto"
+                        placeholder="Notas adicionales (especificaciones técnicas, observaciones de obra...)"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="botones-accion">
+                    <button type="button" id="guardar-presupuesto" class="btn-primary">
+                        <i class="fas fa-save"></i> Guardar Presupuesto
+                    </button>
+                    <button type="button" id="imprimir-presupuesto" class="btn-action">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <button type="button" id="enviar-whatsapp" class="btn-action btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                    </button>
+                </div>
+            </div>
+
+            <div class="lista-presupuestos">
+                <h3>Presupuestos Anteriores</h3>
+                <div class="filtro-busqueda">
+                    <input type="text" id="buscar-presupuesto" placeholder="Buscar presupuesto...">
+                </div>
+                <ul id="lista-presupuestos" class="lista-items"></ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para visualizar/editar presupuesto -->
+    <div id="modal-presupuesto" class="modal">
+        <div class="modal-contenido">
+            <span class="cerrar-modal">&times;</span>
+            <h2><i class="fas fa-file-invoice-dollar"></i> Detalle del Presupuesto</h2>
+            <div class="modal-acciones">
+                <button id="modal-btn-imprimir" class="btn-action">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+                <button id="modal-btn-whatsapp" class="btn-action btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+            </div>
+            <div id="contenido-modal"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
