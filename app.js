@@ -173,7 +173,7 @@ function generarHTMLPresupuesto() {
 
     return `
         <div class="membrete">
-            <div class="membrete-logo"><i class="fas fa-hard-hat" style="font-size:1.4rem;color:#1a3a5c;"></i></div>
+            <div class="membrete-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1a3a5c" width="22" height="22"><path d="M12 2C8.13 2 5 5.13 5 9v2c0 .6.4 1 1 1s1-.4 1-1V9c0-2.8 2.2-5 5-5s5 2.2 5 5v2c0 .6.4 1 1 1s1-.4 1-1V9c0-3.9-3.1-7-7-7z"/><path d="M21 12H3c-.6 0-1 .4-1 1v1c0 .6.4 1 1 1h1v-1c0-1.7 1.3-3 3-3h8c1.7 0 3 1.3 3 3v1h1c.6 0 1-.4 1-1v-1c0-.6-.4-1-1-1z"/><path d="M7 14h10v2c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2v-2z"/></svg></div>
             <div class="membrete-info">
                 <h1 class="empresa-nombre">PresupuestoPro</h1>
                 <p class="empresa-rubro">Carpintería San José - Madera</p>
@@ -314,60 +314,88 @@ function enviarPorWhatsApp() {
 
 function descargarPDF() {
     try {
+        if (typeof html2canvas !== 'function') {
+            alert('Error: La librería de captura no se cargó. Verifique su conexión a internet.');
+            return;
+        }
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF !== 'function') {
+            alert('Error: La librería PDF no se cargó. Verifique su conexión a internet.');
+            return;
+        }
+        
         let presupuestoHtml = qs('contenido-modal').innerHTML;
         if (!presupuestoHtml) {
             presupuestoHtml = generarHTMLPresupuesto();
         }
         
-        const elementoTemporal = document.createElement('div');
-        elementoTemporal.innerHTML = `
-            <style>
-                .presupuesto-pdf { font-family: Arial, sans-serif; padding: 24px; color: #1e2a38; font-size: 14px; background: white; }
-                .presupuesto-pdf .membrete { display: flex; align-items: center; gap: 18px; margin-bottom: 10px; }
-                .presupuesto-pdf .membrete-logo {
-                    width: 60px; height: 60px; border-radius: 50%;
-                    background: #e8a020;
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 1.2rem; font-weight: 800; color: #1a3a5c;
-                }
-                .presupuesto-pdf .empresa-nombre { margin: 0; font-size: 1.4rem; color: #1a3a5c; }
-                .presupuesto-pdf .empresa-rubro { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
-                .presupuesto-pdf .membrete-hr { border: 0; border-top: 3px solid #e8a020; margin: 12px 0 18px; }
-                .presupuesto-pdf .presupuesto-titulo { color: #1a3a5c; font-size: 1.2rem; margin-bottom: 14px; }
-                .presupuesto-pdf .tabla-datos { margin-bottom: 18px; }
-                .presupuesto-pdf .tabla-datos td { padding: 4px 12px 4px 0; }
-                .presupuesto-pdf h3 { color: #1a3a5c; margin: 18px 0 8px; font-size: 1rem; border-left: 4px solid #e8a020; padding-left: 8px; }
-                .presupuesto-pdf .tabla-items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-                .presupuesto-pdf .tabla-items tr td { border: 1px solid #d0d7e0; padding: 7px 10px; }
-                .presupuesto-pdf .tabla-items tr:nth-child(even) td { background: #f5f8fd; }
-                .presupuesto-pdf .resumen-print { background: #f0f4fb; border-radius: 8px; padding: 14px 18px; margin: 18px 0; border: 1px solid #c8d4e8; }
-                .presupuesto-pdf .resumen-fila-print { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #c8d4e8; font-size: 0.97rem; }
-                .presupuesto-pdf .resumen-fila-print:last-child { border-bottom: none; }
-                .presupuesto-pdf .total-print { font-size: 1.2rem; margin-top: 6px; padding-top: 8px; border-top: 2px solid #1a3a5c !important; }
-                .presupuesto-pdf .notas-print { background: #fffbf0; border-left: 4px solid #e8a020; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
-                .presupuesto-pdf .notas-print h4 { margin: 0 0 6px; color: #1a3a5c; }
-                .presupuesto-pdf .firma-print { margin-top: 40px; text-align: right; font-weight: 600; color: #1a3a5c; }
-            </style>
-            <div class="presupuesto-pdf">
-                ${presupuestoHtml}
-            </div>
+        if (!presupuestoHtml || presupuestoHtml.trim() === '') {
+            alert('No hay contenido para generar el PDF. Complete el presupuesto primero.');
+            return;
+        }
+        
+        const estiloPDF = document.createElement('style');
+        estiloPDF.textContent = `
+            .presupuesto-pdf { font-family: Arial, sans-serif; padding: 24px; color: #1e2a38; font-size: 14px; background: white; width: 820px; }
+            .presupuesto-pdf .membrete { display: flex; align-items: center; gap: 18px; margin-bottom: 10px; }
+            .presupuesto-pdf .membrete-logo {
+                width: 60px; height: 60px; border-radius: 50%;
+                background: #e8a020;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1.2rem; font-weight: 800; color: #1a3a5c;
+            }
+            .presupuesto-pdf .empresa-nombre { margin: 0; font-size: 1.4rem; color: #1a3a5c; }
+            .presupuesto-pdf .empresa-rubro { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
+            .presupuesto-pdf .membrete-hr { border: 0; border-top: 3px solid #e8a020; margin: 12px 0 18px; }
+            .presupuesto-pdf .presupuesto-titulo { color: #1a3a5c; font-size: 1.2rem; margin-bottom: 14px; }
+            .presupuesto-pdf .tabla-datos { margin-bottom: 18px; }
+            .presupuesto-pdf .tabla-datos td { padding: 4px 12px 4px 0; }
+            .presupuesto-pdf h3 { color: #1a3a5c; margin: 18px 0 8px; font-size: 1rem; border-left: 4px solid #e8a020; padding-left: 8px; }
+            .presupuesto-pdf .tabla-items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            .presupuesto-pdf .tabla-items tr td { border: 1px solid #d0d7e0; padding: 7px 10px; }
+            .presupuesto-pdf .tabla-items tr:nth-child(even) td { background: #f5f8fd; }
+            .presupuesto-pdf .resumen-print { background: #f0f4fb; border-radius: 8px; padding: 14px 18px; margin: 18px 0; border: 1px solid #c8d4e8; }
+            .presupuesto-pdf .resumen-fila-print { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #c8d4e8; font-size: 0.97rem; }
+            .presupuesto-pdf .resumen-fila-print:last-child { border-bottom: none; }
+            .presupuesto-pdf .total-print { font-size: 1.2rem; margin-top: 6px; padding-top: 8px; border-top: 2px solid #1a3a5c !important; }
+            .presupuesto-pdf .notas-print { background: #fffbf0; border-left: 4px solid #e8a020; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
+            .presupuesto-pdf .notas-print h4 { margin: 0 0 6px; color: #1a3a5c; }
+            .presupuesto-pdf .firma-print { margin-top: 40px; text-align: right; font-weight: 600; color: #1a3a5c; }
         `;
+        document.head.appendChild(estiloPDF);
         
-        const opt = {
-            margin:       0.5,
-            filename:     'presupuesto.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
+        const elementoTemporal = document.createElement('div');
+        elementoTemporal.className = 'presupuesto-pdf';
+        elementoTemporal.innerHTML = presupuestoHtml;
+        elementoTemporal.style.position = 'fixed';
+        elementoTemporal.style.top = '0';
+        elementoTemporal.style.left = '0';
+        document.body.appendChild(elementoTemporal);
         
-        html2pdf().set(opt).from(elementoTemporal).save().catch(err => {
-            console.error('Error html2pdf:', err);
-            alert('Hubo un problema al generar el PDF.');
+        function limpiar() {
+            if (estiloPDF.parentNode) estiloPDF.parentNode.removeChild(estiloPDF);
+            if (elementoTemporal.parentNode) elementoTemporal.parentNode.removeChild(elementoTemporal);
+        }
+        
+        const { jsPDF } = window.jspdf;
+        
+        html2canvas(elementoTemporal, { scale: 2, useCORS: false, allowTaint: false, logging: false }).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            const pdf = new jsPDF('p', 'in', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const margin = 0.5;
+            const imgWidth = pageWidth - margin * 2;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, imgHeight);
+            pdf.save('presupuesto.pdf');
+            limpiar();
+        }).catch(err => {
+            limpiar();
+            console.error('Error al generar PDF:', err);
+            alert('Hubo un problema al generar el PDF. Intente usar Imprimir > Guardar como PDF.');
         });
     } catch (error) {
         console.error('Error al generar PDF:', error);
-        alert('Error al generar el presupuesto en PDF');
+        alert('Error al generar el presupuesto en PDF. Intente usar Imprimir > Guardar como PDF.');
     }
 }
 
