@@ -693,6 +693,7 @@ function crearBoton(html, clase, listener) {
     actualizarSelectServicios();
 
     // --------- Guardar Presupuesto ----------
+    let presupuestoEnEdicion = null; // Rastrear el índice del presupuesto siendo editado
     const btnGuardarPresupuesto = qs('guardar-presupuesto');
     const listaPresupuestos = qs('lista-presupuestos');
     const buscarPresupuesto = qs('buscar-presupuesto');
@@ -754,6 +755,7 @@ function crearBoton(html, clase, listener) {
                 const li = document.createElement('li');
                 li.textContent = `${p.nombre} - ${p.cliente} - ${p.fecha} - ${p.total}`;
                 li.appendChild(crearBoton('<i class="fas fa-eye"></i>', 'btn-action', () => verPresupuesto(idx)));
+                li.appendChild(crearBoton('<i class="fas fa-edit"></i>', 'btn-action', () => editarPresupuesto(idx)));
                 li.appendChild(crearBoton('<i class="fas fa-trash"></i>', 'btn-action', () => eliminarPresupuesto(idx)));
                 listaPresupuestos.appendChild(li);
             });
@@ -834,10 +836,33 @@ function crearBoton(html, clase, listener) {
         abrirModal(p.html || '');
     }
 
+    function editarPresupuesto(i) {
+        presupuestoEnEdicion = i;
+        const p = db.presupuestos[i];
+        cargarPresupuestoEnFormulario(p);
+        // Cambiar el estado visual del botón guardar
+        if (btnGuardarPresupuesto) {
+            btnGuardarPresupuesto.innerHTML = '<i class="fas fa-edit"></i> Actualizar Presupuesto';
+        }
+        // Navegar a la sección de presupuestos
+        abrirSeccion('presupuestos');
+    }
+
     function eliminarPresupuesto(i) {
         if (!confirm('¿Eliminar este presupuesto?')) return;
         db.presupuestos.splice(i,1);
         renderListaPresupuestos(buscarPresupuesto.value);
+    }
+
+    function limpiarFormularioPresupuesto() {
+        qs('cliente-presupuesto').value = '';
+        qs('nombre-presupuesto').value = '';
+        qs('fecha-presupuesto').value = '';
+        qs('validez-presupuesto').value = '30';
+        qs('notas-presupuesto').value = '';
+        qs('lista-materiales-presupuesto').innerHTML = '';
+        qs('lista-servicios-presupuesto').innerHTML = '';
+        actualizarTotalesPresupuesto();
     }
 
     // Cerrar con el botÃ³n Ã—
@@ -864,10 +889,24 @@ function crearBoton(html, clase, listener) {
     if (btnGuardarPresupuesto) {
         btnGuardarPresupuesto.addEventListener('click', () => {
             const datos = obtenerDatosPresupuesto();
-            db.presupuestos.push(datos);
+            
+            if (presupuestoEnEdicion !== null) {
+                // Modo edición: actualizar presupuesto existente
+                db.presupuestos[presupuestoEnEdicion] = datos;
+                alert('Presupuesto actualizado correctamente');
+                presupuestoEnEdicion = null;
+                // Restaurar el botón a su estado original
+                btnGuardarPresupuesto.innerHTML = '<i class="fas fa-save"></i> Guardar Presupuesto';
+            } else {
+                // Modo nuevo: crear presupuesto nuevo
+                db.presupuestos.push(datos);
+                alert('Presupuesto guardado correctamente');
+            }
+            
             guardarDatos();
             renderListaPresupuestos(buscarPresupuesto ? buscarPresupuesto.value : '');
-            alert('Presupuesto guardado correctamente');
+            // Limpiar formulario
+            limpiarFormularioPresupuesto();
         });
     }
 
