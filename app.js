@@ -1,4 +1,4 @@
-﻿// ======================
+// ======================
 // PresupuestoPro â€“ Carpintería San José
 // Sistema de Presupuestos â€“ LÃ³gica de la aplicaciÃ³n
 // ======================
@@ -312,11 +312,72 @@ function enviarPorWhatsApp() {
     }
 }
 
+function descargarPDF() {
+    try {
+        let presupuestoHtml = qs('contenido-modal').innerHTML;
+        if (!presupuestoHtml) {
+            presupuestoHtml = generarHTMLPresupuesto();
+        }
+        
+        const elementoTemporal = document.createElement('div');
+        elementoTemporal.innerHTML = `
+            <style>
+                .presupuesto-pdf { font-family: Arial, sans-serif; padding: 24px; color: #1e2a38; font-size: 14px; background: white; }
+                .presupuesto-pdf .membrete { display: flex; align-items: center; gap: 18px; margin-bottom: 10px; }
+                .presupuesto-pdf .membrete-logo {
+                    width: 60px; height: 60px; border-radius: 50%;
+                    background: #e8a020;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 1.2rem; font-weight: 800; color: #1a3a5c;
+                }
+                .presupuesto-pdf .empresa-nombre { margin: 0; font-size: 1.4rem; color: #1a3a5c; }
+                .presupuesto-pdf .empresa-rubro { margin: 2px 0 0; color: #666; font-size: 0.85rem; }
+                .presupuesto-pdf .membrete-hr { border: 0; border-top: 3px solid #e8a020; margin: 12px 0 18px; }
+                .presupuesto-pdf .presupuesto-titulo { color: #1a3a5c; font-size: 1.2rem; margin-bottom: 14px; }
+                .presupuesto-pdf .tabla-datos { margin-bottom: 18px; }
+                .presupuesto-pdf .tabla-datos td { padding: 4px 12px 4px 0; }
+                .presupuesto-pdf h3 { color: #1a3a5c; margin: 18px 0 8px; font-size: 1rem; border-left: 4px solid #e8a020; padding-left: 8px; }
+                .presupuesto-pdf .tabla-items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                .presupuesto-pdf .tabla-items tr td { border: 1px solid #d0d7e0; padding: 7px 10px; }
+                .presupuesto-pdf .tabla-items tr:nth-child(even) td { background: #f5f8fd; }
+                .presupuesto-pdf .resumen-print { background: #f0f4fb; border-radius: 8px; padding: 14px 18px; margin: 18px 0; border: 1px solid #c8d4e8; }
+                .presupuesto-pdf .resumen-fila-print { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #c8d4e8; font-size: 0.97rem; }
+                .presupuesto-pdf .resumen-fila-print:last-child { border-bottom: none; }
+                .presupuesto-pdf .total-print { font-size: 1.2rem; margin-top: 6px; padding-top: 8px; border-top: 2px solid #1a3a5c !important; }
+                .presupuesto-pdf .notas-print { background: #fffbf0; border-left: 4px solid #e8a020; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
+                .presupuesto-pdf .notas-print h4 { margin: 0 0 6px; color: #1a3a5c; }
+                .presupuesto-pdf .firma-print { margin-top: 40px; text-align: right; font-weight: 600; color: #1a3a5c; }
+            </style>
+            <div class="presupuesto-pdf">
+                ${presupuestoHtml}
+            </div>
+        `;
+        
+        const opt = {
+            margin:       0.5,
+            filename:     'presupuesto.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        
+        html2pdf().set(opt).from(elementoTemporal).save().catch(err => {
+            console.error('Error html2pdf:', err);
+            alert('Hubo un problema al generar el PDF.');
+        });
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        alert('Error al generar el presupuesto en PDF');
+    }
+}
+
 // Event listeners para botones de compartir
 const btnImprimir = qs('imprimir-presupuesto');
+const btnDescargarPDF = qs('descargar-pdf');
 const btnWhatsApp = qs('enviar-whatsapp');
 
 if (btnImprimir) btnImprimir.addEventListener('click', imprimirPresupuesto);
+if (btnDescargarPDF) btnDescargarPDF.addEventListener('click', descargarPDF);
 if (btnWhatsApp) btnWhatsApp.addEventListener('click', enviarPorWhatsApp);
 
 // --------------------
@@ -882,8 +943,10 @@ function crearBoton(html, clase, listener) {
 
     // Botones dentro del modal
     const modalBtnImprimir  = qs('modal-btn-imprimir');
+    const modalBtnPDF       = qs('modal-btn-pdf');
     const modalBtnWhatsapp  = qs('modal-btn-whatsapp');
     if (modalBtnImprimir) modalBtnImprimir.addEventListener('click', imprimirPresupuesto);
+    if (modalBtnPDF) modalBtnPDF.addEventListener('click', descargarPDF);
     if (modalBtnWhatsapp) modalBtnWhatsapp.addEventListener('click', enviarPorWhatsApp);
 
     if (btnGuardarPresupuesto) {

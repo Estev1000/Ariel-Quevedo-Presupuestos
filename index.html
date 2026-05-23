@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -182,6 +182,9 @@
                     <button type="button" id="imprimir-presupuesto" class="btn-action">
                         <i class="fas fa-print"></i> Imprimir
                     </button>
+                    <button type="button" id="descargar-pdf" class="btn-action" style="background-color: #dc3545; color: white;">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
                     <button type="button" id="enviar-whatsapp" class="btn-action btn-whatsapp">
                         <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                     </button>
@@ -207,6 +210,9 @@
                 <button id="modal-btn-imprimir" class="btn-action">
                     <i class="fas fa-print"></i> Imprimir
                 </button>
+                <button id="modal-btn-pdf" class="btn-action" style="background-color: #dc3545; color: white;">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
                 <button id="modal-btn-whatsapp" class="btn-action btn-whatsapp">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
@@ -215,6 +221,8 @@
         </div>
     </div>
 
+    <!-- html2pdf.js para generación de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="app.js"></script>
 </body>
 
