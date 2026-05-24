@@ -873,12 +873,13 @@ function crearBoton(html, clase, listener) {
         listaPresupuestos.innerHTML = '';
         db.presupuestos
             .filter(p => Object.values(p).some(v => String(v).toLowerCase().includes(filtro.toLowerCase())))
-            .forEach((p, idx) => {
+            .forEach(p => {
+                const realIndex = db.presupuestos.indexOf(p);
                 const li = document.createElement('li');
                 li.textContent = `${p.nombre} - ${p.cliente} - ${p.fecha} - ${p.total}`;
-                li.appendChild(crearBoton('<i class="fas fa-eye"></i>', 'btn-action', () => verPresupuesto(idx)));
-                li.appendChild(crearBoton('<i class="fas fa-edit"></i>', 'btn-action', () => editarPresupuesto(idx)));
-                li.appendChild(crearBoton('<i class="fas fa-trash"></i>', 'btn-action', () => eliminarPresupuesto(idx)));
+                li.appendChild(crearBoton('<i class="fas fa-eye"></i>', 'btn-action', () => verPresupuesto(realIndex)));
+                li.appendChild(crearBoton('<i class="fas fa-edit"></i>', 'btn-action', () => editarPresupuesto(realIndex)));
+                li.appendChild(crearBoton('<i class="fas fa-trash"></i>', 'btn-action', () => eliminarPresupuesto(realIndex)));
                 listaPresupuestos.appendChild(li);
             });
     }
@@ -1077,8 +1078,8 @@ function exportarDatos() {
     try {
         const datosExportar = {
             clientes: db.clientes || [],
-            materiales: db.materiales || [],
-            servicios: db.servicios || [],
+            materiales: db.carpinteriaMateriales || [],
+            servicios: db.carpinteriaServicios || [],
             presupuestos: db.presupuestos || [],
             fechaExportacion: new Date().toISOString(),
             version: '1.0'
@@ -1127,22 +1128,16 @@ function importarDatos() {
                 const confirmar = confirm(`¿Importar ${datosImportar.clientes?.length || 0} clientes, ${datosImportar.materiales?.length || 0} materiales, ${datosImportar.servicios?.length || 0} servicios y ${datosImportar.presupuestos?.length || 0} presupuestos?\n\nEsta acción reemplazará todos los datos actuales.`);
                 
                 if (confirmar) {
-                    // Importar datos
+                    // Importar datos a las claves correctas
                     db.clientes = datosImportar.clientes || [];
-                    db.materiales = datosImportar.materiales || [];
-                    db.servicios = datosImportar.servicios || [];
+                    db.carpinteriaMateriales = datosImportar.materiales || [];
+                    db.carpinteriaServicios = datosImportar.servicios || [];
                     db.presupuestos = datosImportar.presupuestos || [];
                     
-                    // Guardar en localStorage
                     guardarDatos();
                     
-                    // Actualizar interfaces
-                    renderListaClientes();
-                    renderListaMateriales();
-                    renderListaServicios();
-                    renderListaPresupuestos();
-                    
-                    alert('Datos importados correctamente');
+                    alert('Datos importados correctamente. Recargando...');
+                    window.location.reload();
                 }
             } catch (error) {
                 console.error('Error al importar datos:', error);
