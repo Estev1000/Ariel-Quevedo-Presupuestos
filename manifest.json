@@ -1,0 +1,32 @@
+{
+  "name": "PresupuestoPro - Carpintería San José",
+  "short_name": "PresupuestoPro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f0f3f8",
+  "theme_color": "#1a3a5c",
+  "description": "Generador de presupuestos para Carpintería San José de Ariel Quevedo. Muebles a medida, aberturas y trabajos en madera.",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

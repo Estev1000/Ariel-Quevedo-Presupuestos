@@ -7,6 +7,15 @@
     <title>PresupuestoPro - Carpintería San José</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- PWA & Mobile Install -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a3a5c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="icon" type="image/png" href="icon-192x192.png">
 </head>
 
 <body>
@@ -201,6 +210,16 @@
                 <ul id="lista-presupuestos" class="lista-items"></ul>
             </div>
         </section>
+
+        <!-- INSTALAR APP (PWA) -->
+        <div id="installCard" class="install-card">
+            <div class="icon-circle"><i class="fas fa-mobile-alt"></i></div>
+            <h3>Instalar Aplicación</h3>
+            <p>Agregá el acceso directo en el inicio de tu teléfono para abrir los presupuestos rápido.</p>
+            <button id="btnInstallApp" class="btn-install-app">
+                <i class="fas fa-download"></i> Instalar ahora
+            </button>
+        </div>
     </main>
 
     <!-- Modal para visualizar/editar presupuesto -->
@@ -222,6 +241,55 @@
             <div id="contenido-modal"></div>
         </div>
     </div>
+
+    <!-- PWA Installation Logic -->
+    <script>
+        let deferredPrompt;
+        const installCard = document.getElementById('installCard');
+        const btnInstallApp = document.getElementById('btnInstallApp');
+
+        const isIos = () => {
+            const ua = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(ua);
+        };
+
+        const isInStandaloneMode = () => ('standalone' in window.navigator) && window.navigator.standalone;
+
+        if (isIos() && !isInStandaloneMode()) {
+            btnInstallApp.addEventListener('click', () => {
+                alert('📱 Para instalar en iPhone:\n\n1. Tocá el botón "Compartir" (ícono del cuadrado con la flecha hacia arriba).\n2. Seleccioná "Agregar a inicio".');
+            });
+        } else {
+            btnInstallApp.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    installCard.classList.add('hidden');
+                } else {
+                    alert('Buscá la opción "Instalar aplicación" o "Agregar a la pantalla de inicio" en el menú de tu navegador.');
+                }
+            });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installCard.classList.add('hidden');
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(
+                    () => console.log('SW ok'),
+                    (err) => console.log('SW fail', err)
+                );
+            });
+        }
+    </script>
 
     <!-- html2canvas + jsPDF para generación de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
