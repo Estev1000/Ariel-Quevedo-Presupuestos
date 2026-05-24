@@ -272,39 +272,44 @@ function imprimirPresupuesto() {
 
 function enviarPorWhatsApp() {
     try {
-        // Generate presupuesto directly from form data
-        const presupuesto = generarHTMLPresupuesto();
-        
         const cliente = qs('cliente-presupuesto').value || 'Cliente';
-        // Intentar obtener teléfono desde el campo de clientes (si el form está visible)
-        let telefono = qs('telefono-cliente') ? qs('telefono-cliente').value.trim() : '';
-        // Si no se escribió manualmente, buscar el teléfono del cliente seleccionado en la base
-        if ((!telefono || telefono === '') && cliente) {
-            const cliObj = (typeof db !== 'undefined') ? db.clientes.find(c => c.nombre === cliente) : null;
-            if (cliObj) telefono = (cliObj.telefono || '').trim();
+        const nombrePres = qs('nombre-presupuesto').value || 'Presupuesto';
+        const fecha = qs('fecha-presupuesto').value || new Date().toISOString().substring(0,10);
+        const notas = qs('notas-presupuesto').value || '';
+
+        let mensaje = '';
+        mensaje += '🏗️  CARPINTERÍA SAN JOSÉ\n';
+        mensaje += '━━━━━━━━━━━━━━━━━━━━━\n\n';
+        mensaje += `👤 Cliente: ${cliente}\n`;
+        mensaje += `📝 ${nombrePres}\n`;
+        mensaje += `📅 ${fecha}\n\n`;
+
+        const mats = document.querySelectorAll('#lista-materiales-presupuesto li');
+        if (mats.length > 0) {
+            mensaje += '📦 MATERIALES:\n';
+            mats.forEach(li => mensaje += `   • ${li.textContent}\n`);
+            mensaje += '\n';
         }
 
-        // Quitar espacios y caracteres no numéricos
-        telefono = telefono.replace(/[^0-9]/g, '');
-
-        if (!telefono || telefono.length < 6) {
-            const telPrompt = prompt('Ingrese número de teléfono del cliente (solo dígitos, con código de área):');
-            telefono = (telPrompt || '').replace(/[^0-9]/g, '');
-            if (!telefono || telefono.length < 6) {
-                alert('Por favor, ingrese un número de teléfono válido');
-                return;
-            }
+        const servs = document.querySelectorAll('#lista-servicios-presupuesto li');
+        if (servs.length > 0) {
+            mensaje += '🔧 MANO DE OBRA:\n';
+            servs.forEach(li => mensaje += `   • ${li.textContent}\n`);
+            mensaje += '\n';
         }
 
-        // Asegurar cÃ³digo de paÃ­s â€“ Ejemplo Argentina 54, si ya empieza con 54 lo dejamos
-        if (!telefono.startsWith('54')) {
-            telefono = '54' + telefono.replace(/^0+/, ''); // quitar ceros iniciales antes de anteponer 54
-        }
+        const subtotalMat = qs('subtotal-materiales').textContent;
+        const subtotalSer = qs('subtotal-servicios').textContent;
+        const total = qs('total-presupuesto').textContent;
+        mensaje += `📊 Subtotal Materiales: $${subtotalMat}\n`;
+        mensaje += `📊 Subtotal Mano Obra: $${subtotalSer}\n`;
+        mensaje += `💰 TOTAL: $${total}\n\n`;
 
-        // Generate message with presupuesto
-        const mensaje = `Hola ${cliente},%0A%0AAdjunto encontrará su presupuesto:%0A%0A${presupuesto.replace(/<[^>]+>/g, '')}%0A%0ASaludos cordiales.`;
+        if (notas) mensaje += `📌 ${notas}\n\n`;
 
-        const urlWhats = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+        mensaje += '✅ ¡Gracias por su confianza!';
+
+        const urlWhats = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
         window.open(urlWhats, '_blank');
     } catch (error) {
         console.error('Error al enviar WhatsApp:', error);
@@ -950,6 +955,7 @@ function crearBoton(html, clase, listener) {
     function verPresupuesto(i) {
         const p = db.presupuestos[i];
         if (!p) return;
+        cargarPresupuestoEnFormulario(p);
         abrirModal(p.html || '');
     }
 
