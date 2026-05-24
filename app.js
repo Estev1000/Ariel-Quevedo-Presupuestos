@@ -975,6 +975,7 @@ function crearBoton(html, clase, listener) {
     function eliminarPresupuesto(i) {
         if (!confirm('¿Eliminar este presupuesto?')) return;
         db.presupuestos.splice(i,1);
+        guardarDatos();
         renderListaPresupuestos(buscarPresupuesto.value);
     }
 
