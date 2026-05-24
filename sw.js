@@ -1,4 +1,4 @@
-const CACHE_NAME = 'presupuestopro-v1';
+const CACHE_NAME = 'presupuestopro-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -37,6 +37,28 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('fetch', function(event) {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // Siempre obtener app.js desde la red para recibir actualizaciones
+  if (url.pathname.endsWith('/app.js') || url.pathname.endsWith('/app.js')) {
+    event.respondWith(
+      fetch(event.request).then(function(response) {
+        if (!response || response.status !== 200 || response.type === 'error') return response;
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, responseToCache);
+        });
+        return response;
+      }).catch(function() {
+        return caches.match(event.request).then(function(response) {
+          return response || new Response('', { status: 503 });
+        });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(function(response) {
       return response || fetch(event.request).then(function(response) {
