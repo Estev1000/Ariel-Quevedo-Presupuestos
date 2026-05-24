@@ -408,6 +408,22 @@ if (btnImprimir) btnImprimir.addEventListener('click', imprimirPresupuesto);
 if (btnDescargarPDF) btnDescargarPDF.addEventListener('click', descargarPDF);
 if (btnWhatsApp) btnWhatsApp.addEventListener('click', enviarPorWhatsApp);
 
+// Auto-fill price when material/service is selected
+const matSelect = qs('material-presupuesto');
+const servSelect = qs('servicio-presupuesto');
+if (matSelect) {
+    matSelect.addEventListener('change', function() {
+        const material = db.carpinteriaMateriales.find(m => m.nombre === this.value);
+        if (material) qs('precio-unitario-material').value = material.precio;
+    });
+}
+if (servSelect) {
+    servSelect.addEventListener('change', function() {
+        const servicio = db.carpinteriaServicios.find(s => s.nombre === this.value);
+        if (servicio) qs('precio-unitario-servicio').value = servicio.precio;
+    });
+}
+
 // --------------------
 // CÃ¡lculo y actualizaciÃ³n de subtotales / total
 // --------------------
@@ -451,21 +467,27 @@ if (btnAgregarMaterial) {
     btnAgregarMaterial.addEventListener('click', () => {
         const materialSel = qs('material-presupuesto');
         const cantidadInp = qs('cantidad-material');
+        const precioInp   = qs('precio-unitario-material');
         const cantidad    = parseFloat(cantidadInp.value);
-        if (!materialSel.value || isNaN(cantidad) || cantidad <= 0) return;
+        const precio      = parseFloat(precioInp.value);
+        if (!materialSel.value || isNaN(cantidad) || cantidad <= 0 || isNaN(precio) || precio < 0) {
+            alert('Seleccione un material, ingrese cantidad y precio válidos');
+            return;
+        }
         const material = db.carpinteriaMateriales.find(m => m.nombre === materialSel.value);
         if (!material) return;
 
         const li = document.createElement('li');
         li.dataset.cantidad = cantidad;
-        li.dataset.precio   = material.precio;
-        li.textContent = `${material.nombre} x ${cantidad} ${material.unidad} = ${(cantidad * material.precio).toFixed(2)}`;
+        li.dataset.precio   = precio;
+        li.textContent = `${material.nombre} x ${cantidad} ${material.unidad} = $${(cantidad * precio).toFixed(2)}`;
         li.appendChild(crearBoton('<i class="fas fa-trash"></i>', 'btn-action', () => {
             li.remove();
             actualizarTotalesPresupuesto();
         }));
         qs('lista-materiales-presupuesto').appendChild(li);
         cantidadInp.value = '';
+        precioInp.value = '';
         actualizarTotalesPresupuesto();
     });
 }
@@ -474,21 +496,27 @@ if (btnAgregarServicio) {
     btnAgregarServicio.addEventListener('click', () => {
         const servicioSel = qs('servicio-presupuesto');
         const cantidadInp = qs('cantidad-servicio');
+        const precioInp   = qs('precio-unitario-servicio');
         const cantidad    = parseFloat(cantidadInp.value);
-        if (!servicioSel.value || isNaN(cantidad) || cantidad <= 0) return;
+        const precio      = parseFloat(precioInp.value);
+        if (!servicioSel.value || isNaN(cantidad) || cantidad <= 0 || isNaN(precio) || precio < 0) {
+            alert('Seleccione un servicio, ingrese cantidad y precio válidos');
+            return;
+        }
         const servicio = db.carpinteriaServicios.find(s => s.nombre === servicioSel.value);
         if (!servicio) return;
 
         const li = document.createElement('li');
         li.dataset.cantidad = cantidad;
-        li.dataset.precio   = servicio.precio;
-        li.textContent = `${servicio.nombre} x ${cantidad} ${servicio.unidad} = ${(cantidad * servicio.precio).toFixed(2)}`;
+        li.dataset.precio   = precio;
+        li.textContent = `${servicio.nombre} x ${cantidad} ${servicio.unidad} = $${(cantidad * precio).toFixed(2)}`;
         li.appendChild(crearBoton('<i class="fas fa-trash"></i>', 'btn-action', () => {
             li.remove();
             actualizarTotalesPresupuesto();
         }));
         qs('lista-servicios-presupuesto').appendChild(li);
         cantidadInp.value = '';
+        precioInp.value = '';
         actualizarTotalesPresupuesto();
     });
 }
